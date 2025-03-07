@@ -77,24 +77,32 @@ dependencies {
 
 // Extract JNA native libraries
 tasks.register<Copy>("extractJnaLibs") {
-    dependsOn("preBuild")
-    from(zipTree(configurations.runtimeClasspath.get().filter { it.name.contains("jna") && it.name.endsWith("aar") }.singleFile))
-    include("jni/**")
-    into("$buildDir/jniLibs")
+    doLast {
+        // Use a resolvable configuration
+        val jnaAar = configurations.getByName("releaseCompileClasspath")
+            .filter { it.name.contains("jna") && it.name.endsWith("aar") }
+            .singleOrNull()
+        
+        if (jnaAar != null) {
+            from(zipTree(jnaAar)) {
+                include("jni/**")
+                into(layout.buildDirectory.dir("jniLibs").get().asFile)
+            }
+        } else {
+            logger.warn("JNA AAR not found in releaseCompileClasspath")
+        }
+    }
 }
 
-tasks.named("processReleaseJavaRes") {
-    dependsOn("extractJnaLibs")
-}
-
-tasks.named("processDebugJavaRes") {
-    dependsOn("extractJnaLibs")
+// Make sure extractJnaLibs runs during the build process
+tasks.named("preBuild") {
+    finalizedBy("extractJnaLibs")
 }
 
 android {
     sourceSets {
         getByName("main") {
-            jniLibs.srcDirs("$buildDir/jniLibs")
+            jniLibs.srcDirs(layout.buildDirectory.dir("jniLibs").get().asFile)
         }
     }
 }
