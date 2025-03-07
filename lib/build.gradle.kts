@@ -75,6 +75,30 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
+// Extract JNA native libraries
+tasks.register<Copy>("extractJnaLibs") {
+    dependsOn("preBuild")
+    from(zipTree(configurations.runtimeClasspath.get().filter { it.name.contains("jna") && it.name.endsWith("aar") }.singleFile))
+    include("jni/**")
+    into("$buildDir/jniLibs")
+}
+
+tasks.named("processReleaseJavaRes") {
+    dependsOn("extractJnaLibs")
+}
+
+tasks.named("processDebugJavaRes") {
+    dependsOn("extractJnaLibs")
+}
+
+android {
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDirs("$buildDir/jniLibs")
+        }
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {
