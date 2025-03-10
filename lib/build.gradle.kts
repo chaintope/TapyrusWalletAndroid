@@ -135,6 +135,31 @@ afterEvaluate {
                         url.set("https://github.com/chaintope/rust-tapyrus-wallet-ffi/tree/master")
                     }
                 }
+                
+                // This is a workaround for an issue where JitPack removes the thirdPartyCompatibility metadata
+                // from the .module file during the build process, even when @aar is specified in the dependency.
+                // By explicitly setting the dependency metadata in the POM XML, we ensure proper AAR resolution.
+                pom.withXml {
+                    asNode().apply {
+                        // Find existing dependencies node or create one if it doesn't exist
+                        val dependencies = children().find { (it as groovy.util.Node).name() == "dependencies" } as groovy.util.Node? 
+                            ?: appendNode("dependencies")
+                        
+                        // Explicitly add JNA dependency with AAR type
+                        dependencies.appendNode("dependency").apply {
+                            appendNode("groupId", "net.java.dev.jna")
+                            appendNode("artifactId", "jna")
+                            appendNode("version", "5.14.0")
+                            appendNode("type", "aar")
+                            
+                            // Add properties equivalent to thirdPartyCompatibility metadata
+                            appendNode("classifier", "")
+                            val properties = appendNode("properties")
+                            properties.appendNode("aar.type", "aar")
+                            properties.appendNode("aar.extension", "aar")
+                        }
+                    }
+                }
             }
         }
     }
