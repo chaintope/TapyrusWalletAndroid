@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.chaintope.tapyrus.wallet"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
@@ -67,12 +67,8 @@ dependencies {
     androidTestImplementation("com.github.tony19:logback-android:2.0.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("org.jetbrains.kotlin:kotlin-test:2.1.10")
-    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.10")
-    
-    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.10")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.10")
-    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10")
 }
 
 // Extract JNA native libraries
@@ -95,9 +91,9 @@ tasks.register<Copy>("extractJnaLibs") {
 }
 
 // Make sure extractJnaLibs runs during the build process
-tasks.named("preBuild") {
-    finalizedBy("extractJnaLibs")
-}
+//tasks.named("preBuild") {
+//    finalizedBy("extractJnaLibs")
+//}
 
 android {
     sourceSets {
